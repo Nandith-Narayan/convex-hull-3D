@@ -83,4 +83,15 @@ document.getElementById("wireframe").addEventListener('click', () => {
 
 });
 
+document.getElementById("normals").addEventListener('click', () => {
+    let checked = document.getElementById("normals").checked;
+    if (checked) {
+        helper.visible = true;
+    } else {
+        helper.visible = false;
+    }
+    scene.needsUpdate = true
+
+});
+
 render();
