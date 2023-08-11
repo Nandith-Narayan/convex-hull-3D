@@ -49,7 +49,7 @@ var wireframe = new THREE.LineSegments(geo, mat);
 let pointsGroup= new THREE.Group();;
 
 const pointMaterial = new THREE.MeshBasicMaterial({
-    color: 0x1ad67b
+    color: 0xffff00
 });
 
 for(let i=0; i< uniquePoints.length; i+=3){
@@ -96,6 +96,17 @@ document.getElementById("normals").addEventListener('click', () => {
         helper.visible = true;
     } else {
         helper.visible = false;
+    }
+    scene.needsUpdate = true
+
+});
+
+document.getElementById("points").addEventListener('click', () => {
+    let checked = document.getElementById("points").checked;
+    if (checked) {
+        pointsGroup.visible = true;
+    } else {
+        pointsGroup.visible = false;
     }
     scene.needsUpdate = true
 
