@@ -30,11 +30,18 @@ export class ConvexHull {
     }
 
     getPointsFromFaces() {
-        let points = []
+        let points = [];
         for (let i = 0; i < this.faces.length; i++) {
             points = points.concat(pointToArr(this.faces[i].p1));
             points = points.concat(pointToArr(this.faces[i].p2));
             points = points.concat(pointToArr(this.faces[i].p3));
+        }
+        return points;
+    }
+    getUniquePoints(){
+        let points = [];
+        for(let i=0;i<this.points.length;i++){
+            points = points.concat(pointToArr(this.points[i]));
         }
         return points;
     }

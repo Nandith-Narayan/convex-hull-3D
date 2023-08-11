@@ -24,19 +24,12 @@ document.getElementById('screen').appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 const geometry = new THREE.BufferGeometry();
 
-let positions = [
-    0, 0, 15, // v1
-    0, 5, 15, // v2
-    5, 0, 5, // v3
-    1, 0, 15, // v1
-    1, 5, 15, // v2
-    1, 0, 5 // v3
-];
+
 let hull = new ConvexHull();
 hull.initPointList();
-positions = hull.getPointsFromFaces();
+let positions = hull.getPointsFromFaces();
+let uniquePoints = hull.getUniquePoints();
 
-console.log(positions)
 
 geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 geometry.computeVertexNormals();
@@ -52,8 +45,22 @@ var mat = new THREE.LineBasicMaterial({
     color: 0xaaaaaa
 });
 var wireframe = new THREE.LineSegments(geo, mat);
-scene.add(wireframe);
 
+let pointsGroup= new THREE.Group();;
+
+const pointMaterial = new THREE.MeshBasicMaterial({
+    color: 0x1ad67b
+});
+
+for(let i=0; i< uniquePoints.length; i+=3){
+    let box = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), pointMaterial);
+    box.position.set(uniquePoints[i],uniquePoints[i + 1],uniquePoints[i + 2]);
+    pointsGroup.add(box)
+}
+
+scene.add(pointsGroup);
+
+scene.add(wireframe);
 scene.add(object);
 scene.add(helper);
 
