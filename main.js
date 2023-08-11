@@ -3,7 +3,10 @@ import {
     OrbitControls
 }
 from 'three/addons/controls/OrbitControls.js';
-import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+import {
+    VertexNormalsHelper
+}
+from 'three/addons/helpers/VertexNormalsHelper.js';
 
 import {
     test,
@@ -44,10 +47,12 @@ const material = new THREE.MeshBasicMaterial({
 const object = new THREE.Mesh(geometry, material);
 const helper = new VertexNormalsHelper(object);
 
-var geo = new THREE.EdgesGeometry( object.geometry ); // or WireframeGeometry
-var mat = new THREE.LineBasicMaterial( { color: 0x000000 } );
-var wireframe = new THREE.LineSegments( geo, mat );
-object.add( wireframe );
+var geo = new THREE.EdgesGeometry(object.geometry); // or WireframeGeometry
+var mat = new THREE.LineBasicMaterial({
+    color: 0xaaaaaa
+});
+var wireframe = new THREE.LineSegments(geo, mat);
+scene.add(wireframe);
 
 scene.add(object);
 scene.add(helper);
@@ -55,8 +60,10 @@ scene.add(helper);
 scene.needsUpdate = true
     //renderer.render(scene, camera);
 
-camera.position.z = -10;
+    camera.position.z = -10;
 controls.update();
+
+object.visible = true;
 
 function render() {
     test()
@@ -64,4 +71,16 @@ function render() {
     requestAnimationFrame(render);
 
 }
+
+document.getElementById("wireframe").addEventListener('click', () => {
+    let checked = document.getElementById("wireframe").checked;
+    if (checked) {
+        object.visible = false;
+    } else {
+        object.visible = true;
+    }
+    scene.needsUpdate = true
+
+});
+
 render();
