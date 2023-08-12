@@ -14,7 +14,10 @@
     top: 2em;
     flex-direction: row;
     color: white;
-    gap: 0.4em;
+    gap: 0.4em;    
+}
 
-    
+span{
+  display: inline-flex;
+  align-items: center;
 }
