@@ -6,10 +6,15 @@
     top: 2em;
 }
 
-#step-button {
+#info-tab {
     position: absolute;
-    display: block;
+    display: flex;
     z-index: 99;
-    left: 90%;
+    right: 2em;
     top: 2em;
+    flex-direction: row;
+    color: white;
+    gap: 0.4em;
+
+    
 }

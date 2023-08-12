@@ -4,16 +4,21 @@ export function test() {
 export class ConvexHull {
     initPointList() {
         this.points = generatePoints();
-        this.faces = [];
-        this.addFace(this.points[0], this.points[1], this.points[2]);
-        this.addFace(this.points[0], this.points[1], this.points[3]);
-        this.addFace(this.points[0], this.points[2], this.points[3]);
-        this.addFace(this.points[1], this.points[2], this.points[3]);
-
+        this.initHull();
+        
         for (let i = 4; i < this.points.length; i++) {
             this.iterateHull(this.points[i]);
         }
     }
+    
+    initHull(){
+        this.faces = [];
+        this.addFace(this.points[0], this.points[1], this.points[2]);
+        this.addFace(this.points[0], this.points[1], this.points[3]);
+        this.addFace(this.points[0], this.points[2], this.points[3]);
+        this.addFace(this.points[1], this.points[2], this.points[3]);       
+    }
+    
 
     iterateHull(point) {
         let outsideFaces = []
@@ -152,7 +157,7 @@ export class ConvexHull {
             Ny /= length;
             Nz /= length;
 
-            const scale = 0.8;
+            const scale = 0.5;
 
             normals.push({
                 x1: (p1.x + p2.x + p3.x) / 3,
@@ -244,7 +249,7 @@ function generatePoints() {
     });
 
     let scale = 2.0;
-    for (let i = 0; i < 2000; i++) {
+    for (let i = 0; i < 20; i++) {
         pointList.push({
             x: scale * (Math.random() * 2 - 1),
             y: scale * (Math.random() * 2 - 1),

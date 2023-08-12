@@ -13,53 +13,46 @@ import {
 }
 from './convexhull.js';
 
+// Create three.js scene, camera, renderer, and controls
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
-
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-
 document.getElementById('screen').appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
-const geometry = new THREE.BufferGeometry();
 
+// Compute convex hull
 let hull = new ConvexHull();
 hull.initPointList();
 let positions = hull.getPointsFromFaces();
 let uniquePoints = hull.getUniquePoints();
 
+// Create mesh
+let geometry = new THREE.BufferGeometry();
 geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 geometry.computeVertexNormals();
+const objectMaterial = new THREE.MeshNormalMaterial();
+let object = new THREE.Mesh(geometry, objectMaterial);
 
-const object = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-            color: 0x00ffff
-        }));
+// Create vertex normal helper, wireframe, points, and face normals
 let helper = new VertexNormalsHelper(object);
-
-var geo = new THREE.EdgesGeometry(object.geometry); // or WireframeGeometry
-var wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(object.geometry), new THREE.LineBasicMaterial({
-            color: 0xaaaaaa
+let wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(object.geometry), new THREE.LineBasicMaterial({
+            color: 0xffffff
         }));
-
 let pointsGroup = new THREE.Group(); ;
-
 const pointMaterial = new THREE.MeshBasicMaterial({
     color: 0xffff00
 });
-
 for (let i = 0; i < uniquePoints.length; i += 3) {
     let box = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), pointMaterial);
     box.position.set(uniquePoints[i], uniquePoints[i + 1], uniquePoints[i + 2]);
     pointsGroup.add(box)
 }
-
 let normalsGroup = new THREE.Group();
 const normalMaterial = new THREE.LineBasicMaterial({
     color: 0x0000ff
 });
-
 let normalList = hull.computeNormals();
-
 for (let i = 0; i < normalList.length; i++) {
     const n = normalList[i];
     const points = [];
@@ -70,6 +63,7 @@ for (let i = 0; i < normalList.length; i++) {
     normalsGroup.add(line);
 }
 
+// Add everything to the scene
 scene.add(wireframe);
 scene.add(object);
 scene.add(helper);
@@ -79,37 +73,49 @@ scene.add(pointsGroup);
 helper.visible = false;
 
 scene.needsUpdate = true
-    //renderer.render(scene, camera);
 
-    camera.position.z = -10;
+camera.position.z = -10;
 controls.update();
 
-object.visible = true;
+let pointsCaptured = hull.points.length;
+const display = document.getElementById("point-display");
+display.innerText = "Points: "+pointsCaptured+"/"+hull.points.length;
 
-let idx = 4;
 function doNextHullStep() {
-    if (idx >= hull.points.length) {
-        return;
+    if(pointsCaptured > hull.points.length){
+        pointsCaptured = 4;
     }
+    
+    const display = document.getElementById("point-display");
+    display.innerText = "Points: "+pointsCaptured+"/"+hull.points.length;
+    
+    hull.initHull();
 
-    hull.iterateHull(hull.points[idx]);
-    idx++;
+    for (let i = 4; i < pointsCaptured && i < hull.points.length; i++) {
+        hull.iterateHull(hull.points[i]);
+    }
+    pointsCaptured++;
+
+    recreateScene();
 }
 
 function recreateScene() {
     positions = hull.getPointsFromFaces();
     uniquePoints = hull.getUniquePoints();
-
+    
+    scene.remove(object);
+    geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     geometry.computeVertexNormals();
 
     geometry.needsUpdate = true;
+    object = new THREE.Mesh(geometry, objectMaterial);
+    scene.add(object);
+    
     scene.remove(helper);
     helper = new VertexNormalsHelper(object);
     scene.add(helper);
-    if (!document.getElementById("vertex-normals").checked) {
-        helper.visible = false;
-    }
+    
 
     scene.remove(wireframe);
 
@@ -134,11 +140,33 @@ function recreateScene() {
         normalsGroup.add(line);
     }
 
+    scene.add(normalsGroup);
+    
+    scene.remove(pointsGroup);
+    
+    pointsGroup = new THREE.Group(); ;
+   
+    for (let i = 0; i < uniquePoints.length; i += 3) {
+        let box = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), pointMaterial);
+        box.position.set(uniquePoints[i], uniquePoints[i + 1], uniquePoints[i + 2]);
+        pointsGroup.add(box)
+    }
+    scene.add(pointsGroup);
+    
+    if (document.getElementById("wireframe").checked) {
+        object.visible = false;
+    }
+    if (!document.getElementById("points").checked) {
+        pointsGroup.visible = false;
+    }
+    if (!document.getElementById("vertex-normals").checked) {
+        helper.visible = false;
+    }
     if (!document.getElementById("face-normals").checked) {
         normalsGroup.visible = false;
     }
 
-    scene.add(normalsGroup);
+    
 
     scene.needsUpdate = true;
 
@@ -196,9 +224,12 @@ document.getElementById("points").addEventListener('click', () => {
 });
 
 document.getElementById("step-button").addEventListener('click', () => {
-
     doNextHullStep();
-
+});
+document.getElementById("rand-button").addEventListener('click', () => {
+    hull.initPointList();
+    pointsCaptured = hull.points.length;
+    recreateScene();
 });
 
 render();
