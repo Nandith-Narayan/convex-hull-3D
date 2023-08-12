@@ -29,3 +29,33 @@ span{
     margin: 0;
     padding: 0;
 }
+
+@media (max-width: 800px) {
+
+    #menu-button {
+        position: absolute;
+        display: block;
+        z-index: 99;
+        left: 2em;
+        top: 2em;
+    }
+
+    #info-tab {
+        position: absolute;
+        display: flex;
+        z-index: 99;
+        right: 2em;
+        top: 5em;
+        flex-direction: row;
+        color: white;
+        gap: 0.4em;    
+    }
+
+    #point-range{
+        width: 10em;
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+    }
+}
