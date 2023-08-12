@@ -11,6 +11,9 @@
 <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" id="menu-button">
   Menu
 </button>
+<button class="btn btn-primary" type="button" id="step-button">
+  Step
+</button>
 
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
@@ -24,8 +27,12 @@
           <label class="form-check-label" for="wireframe">Render as wireframe</label>
         </div>
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="normals" checked>
-          <label class="form-check-label" for="normals">Render normals</label>
+          <input class="form-check-input" type="checkbox" role="switch" id="face-normals" checked>
+          <label class="form-check-label" for="face-normals">Render face normals</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="vertex-normals">
+          <label class="form-check-label" for="vertex-normals">Render vertex normals</label>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="points" checked>

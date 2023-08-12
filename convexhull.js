@@ -9,8 +9,8 @@ export class ConvexHull {
         this.addFace(this.points[0], this.points[1], this.points[3]);
         this.addFace(this.points[0], this.points[2], this.points[3]);
         this.addFace(this.points[1], this.points[2], this.points[3]);
-        
-        for(let i=4;i<this.points.length;i++){
+
+        for (let i = 4; i < this.points.length; i++) {
             this.iterateHull(this.points[i]);
         }
     }
@@ -23,7 +23,7 @@ export class ConvexHull {
             let p2 = this.faces[i].p2;
             let p3 = this.faces[i].p3;
             let dir = getOrientationToFace(p1, p2, p3, point);
-            if (dir < 0) {
+            if (dir > 0) {
                 outsideFaces.push(this.faces[i]);
             } else {
                 insideFaces.push(this.faces[i]);
@@ -53,8 +53,9 @@ export class ConvexHull {
                 p2: p1
             });
         }
+
         let validPairs = []
-        const epsilon = 0.001;
+
         for (let i = 0; i < pairs.length; i++) {
             let p1 = pairs[i].p1;
             let p2 = pairs[i].p2;
@@ -66,7 +67,7 @@ export class ConvexHull {
                 }
                 let p3 = pairs[j].p1;
                 let p4 = pairs[j].p2;
-                if (Math.abs(p1-p3)<epsilon && Math.abs(p2-p4)<epsilon) {
+                if ((arePointsEqual(p1, p3) && arePointsEqual(p2, p4)) || (arePointsEqual(p1, p4) && arePointsEqual(p2, p3))) {
                     isValid = false;
                     break;
                 }
@@ -78,18 +79,17 @@ export class ConvexHull {
                 });
             }
         }
-        
-        
-        /*this.faces = [];
-        
-        for(let i=0;i<insideFaces.length;i++){
+
+        this.faces = [];
+
+        for (let i = 0; i < insideFaces.length; i++) {
             this.faces.push(insideFaces[i]);
-        }*/
-        
-        for(let i=0;i<pairs.length;i++){
-            this.addFace(pairs[i].p1, pairs[i].p2, point)
         }
-        
+
+        for (let i = 0; i < validPairs.length; i++) {
+            this.addFace(validPairs[i].p1, validPairs[i].p2, point)
+        }
+
     }
 
     addFace(p1, p2, p3) {
@@ -125,44 +125,74 @@ export class ConvexHull {
         }
         return points;
     }
+
+    computeNormals() {
+        let normals = [];
+
+        for (let i = 0; i < this.faces.length; i++) {
+            const p1 = this.faces[i].p1;
+            const p2 = this.faces[i].p2;
+            const p3 = this.faces[i].p3;
+
+            const Ax = p2.x - p1.x;
+            const Ay = p2.y - p1.y;
+            const Az = p2.z - p1.z;
+
+            const Bx = p3.x - p1.x;
+            const By = p3.y - p1.y;
+            const Bz = p3.z - p1.z;
+
+            let Nx = Ay * Bz - Az * By;
+            let Ny = Az * Bx - Ax * Bz;
+            let Nz = Ax * By - Ay * Bx;
+
+            const length = Math.sqrt(Nx * Nx + Ny * Ny + Nz * Nz);
+
+            Nx /= length;
+            Ny /= length;
+            Nz /= length;
+
+            const scale = 0.8;
+
+            normals.push({
+                x1: (p1.x + p2.x + p3.x) / 3,
+                y1: (p1.y + p2.y + p3.y) / 3,
+                z1: (p1.z + p2.z + p3.z) / 3,
+                x2: (p1.x + p2.x + p3.x) / 3 + Nx * scale,
+                y2: (p1.y + p2.y + p3.y) / 3 + Ny * scale,
+                z2: (p1.z + p2.z + p3.z) / 3 + Nz * scale
+            });
+        }
+
+        return normals;
+    }
+
 }
 
 function getOrientationToFace(p1, p2, p3, p4) {
-    let a = p1.x;
-    let b = p1.y;
-    let c = p1.z;
-    let d = p2.x;
-    let e = p2.y;
-    let f = p2.z;
-    let g = p3.x;
-    let h = p3.y;
-    let i = p3.z;
-    let x = p4.x;
-    let y = p4.y;
-    let z = p4.z;
+    const Ax = p2.x - p1.x;
+    const Ay = p2.y - p1.y;
+    const Az = p2.z - p1.z;
 
-    let result = -1 * e * a * z;
-    result -= a * f * h;
-    result += a * f * y;
-    result += a * h * z;
-    result += b * d * z;
-    result += b * f * g;
-    result -= b * f * x;
-    result -= b * g * z;
-    result += c * d * h;
-    result -= c * d * y;
-    result -= e * c * g;
-    result += e * c * x;
-    result += c * g * y;
-    result -= c * h * x;
-    result -= d * h * z;
-    result += e * g * z;
-    result -= f * g * y;
-    result += f * h * z;
+    const Bx = p3.x - p1.x;
+    const By = p3.y - p1.y;
+    const Bz = p3.z - p1.z;
 
-    result += i * (e * a - a * y - b * d + b * x + d * y - e * x);
+    let Nx = Ay * Bz - Az * By;
+    let Ny = Az * Bx - Ax * Bz;
+    let Nz = Ax * By - Ay * Bx;
 
-    return result;
+    const length = Math.sqrt(Nx * Nx + Ny * Ny + Nz * Nz);
+
+    Nx /= length;
+    Ny /= length;
+    Nz /= length;
+
+    let Px = (p1.x + p2.x + p3.x) / 3;
+    let Py = (p1.y + p2.y + p3.y) / 3;
+    let Pz = (p1.z + p2.z + p3.z) / 3;
+
+    return Nx * (p4.x - Px) + Ny * (p4.y - Py) + Nz * (p4.z - Pz);
 }
 
 function getOrientation(p1, p2, p3) {
@@ -181,6 +211,12 @@ function getOrientation(p1, p2, p3) {
 
 function pointToArr(p) {
     return [p.x, p.y, p.z];
+}
+
+function arePointsEqual(p1, p2) {
+    const epsilon = 0.001;
+
+    return (Math.abs(p1.x - p2.x) < epsilon) && (Math.abs(p1.y - p2.y) < epsilon) && (Math.abs(p1.z - p2.z) < epsilon);
 }
 
 function generatePoints() {
@@ -208,7 +244,7 @@ function generatePoints() {
     });
 
     let scale = 2.0;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 2000; i++) {
         pointList.push({
             x: scale * (Math.random() * 2 - 1),
             y: scale * (Math.random() * 2 - 1),

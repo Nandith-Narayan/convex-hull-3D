@@ -6,3 +6,10 @@
     top: 2em;
 }
 
+#step-button {
+    position: absolute;
+    display: block;
+    z-index: 99;
+    left: 90%;
+    top: 2em;
+}
