@@ -72,23 +72,23 @@ scene.add(pointsGroup);
 
 helper.visible = false;
 
-scene.needsUpdate = true
+scene.needsUpdate = true;
 
 camera.position.z = -10;
 controls.update();
 
 let pointsCaptured = hull.points.length;
 const display = document.getElementById("point-display");
-display.innerText = "Points: "+pointsCaptured+"/"+hull.points.length;
+display.innerText = "Points: " + pointsCaptured + "/" + hull.points.length;
 
 function doNextHullStep() {
-    if(pointsCaptured > hull.points.length){
+    if (pointsCaptured > hull.points.length) {
         pointsCaptured = 4;
     }
-    
+
     const display = document.getElementById("point-display");
-    display.innerText = "Points: "+pointsCaptured+"/"+hull.points.length;
-    
+    display.innerText = "Points: " + pointsCaptured + "/" + hull.points.length;
+
     hull.initHull();
 
     for (let i = 4; i < pointsCaptured && i < hull.points.length; i++) {
@@ -102,7 +102,7 @@ function doNextHullStep() {
 function recreateScene() {
     positions = hull.getPointsFromFaces();
     uniquePoints = hull.getUniquePoints();
-    
+
     scene.remove(object);
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
@@ -111,11 +111,10 @@ function recreateScene() {
     geometry.needsUpdate = true;
     object = new THREE.Mesh(geometry, objectMaterial);
     scene.add(object);
-    
+
     scene.remove(helper);
     helper = new VertexNormalsHelper(object);
     scene.add(helper);
-    
 
     scene.remove(wireframe);
 
@@ -141,18 +140,18 @@ function recreateScene() {
     }
 
     scene.add(normalsGroup);
-    
+
     scene.remove(pointsGroup);
-    
+
     pointsGroup = new THREE.Group(); ;
-   
+
     for (let i = 0; i < uniquePoints.length; i += 3) {
         let box = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), pointMaterial);
         box.position.set(uniquePoints[i], uniquePoints[i + 1], uniquePoints[i + 2]);
         pointsGroup.add(box)
     }
     scene.add(pointsGroup);
-    
+
     if (document.getElementById("wireframe").checked) {
         object.visible = false;
     }
@@ -165,8 +164,6 @@ function recreateScene() {
     if (!document.getElementById("face-normals").checked) {
         normalsGroup.visible = false;
     }
-
-    
 
     scene.needsUpdate = true;
 
