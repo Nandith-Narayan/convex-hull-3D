@@ -5,22 +5,26 @@ export class ConvexHull {
     initPointList(numPoints) {
         this.points = generatePoints(numPoints);
         this.initHull();
-        
+
         for (let i = 4; i < this.points.length; i++) {
-            this.iterateHull(this.points[i]);
+            this.iterateHull(i);
         }
     }
-    
-    initHull(){
+
+    initHull() {
+        this.pointIsOnHull = [];
+        for (let i = 0; i < this.points.length; i++) {
+            this.pointIsOnHull.push(i < 4);
+        }
         this.faces = [];
         this.addFace(this.points[0], this.points[1], this.points[2]);
         this.addFace(this.points[0], this.points[1], this.points[3]);
         this.addFace(this.points[0], this.points[2], this.points[3]);
-        this.addFace(this.points[1], this.points[2], this.points[3]);       
+        this.addFace(this.points[1], this.points[2], this.points[3]);
     }
-    
 
-    iterateHull(point) {
+    iterateHull(index) {
+        const point = this.points[index];
         let outsideFaces = []
         let insideFaces = []
         for (let i = 0; i < this.faces.length; i++) {
@@ -114,6 +118,21 @@ export class ConvexHull {
         }
     }
 
+    calcInsidePoints() {
+
+        for (let index = 0; index < this.points.length; index++) {
+            let onHull = false;
+            for (let i = 0; i < this.faces.length; i++) {
+                if (arePointsEqual(this.faces[i].p1, this.points[index]) || arePointsEqual(this.faces[i].p2, this.points[index]) || arePointsEqual(this.faces[i].p3, this.points[index])) {
+                    onHull = true;
+                    break;
+                }
+            }
+            this.pointIsOnHull[index] = onHull;
+        }
+
+    }
+
     getPointsFromFaces() {
         let points = [];
         for (let i = 0; i < this.faces.length; i++) {
@@ -124,9 +143,22 @@ export class ConvexHull {
         return points;
     }
     getUniquePoints() {
+        this.calcInsidePoints();
         let points = [];
         for (let i = 0; i < this.points.length; i++) {
-            points = points.concat(pointToArr(this.points[i]));
+            if (!this.pointIsOnHull[i]) {
+                points = points.concat(pointToArr(this.points[i]));
+            }
+        }
+        return points;
+    }
+
+    getUniqueHullPoints() {
+        let points = [];
+        for (let i = 0; i < this.points.length; i++) {
+            if (this.pointIsOnHull[i]) {
+                points = points.concat(pointToArr(this.points[i]));
+            }
         }
         return points;
     }
@@ -249,7 +281,7 @@ function generatePoints(numPoints) {
     });
 
     let scale = 2.0;
-    for (let i = 0; i < numPoints-4; i++) {
+    for (let i = 0; i < numPoints - 4; i++) {
         pointList.push({
             x: scale * (Math.random() * 2 - 1),
             y: scale * (Math.random() * 2 - 1),
