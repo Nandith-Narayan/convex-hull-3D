@@ -2,8 +2,8 @@ export function test() {
     //console.log("yes");
 }
 export class ConvexHull {
-    initPointList() {
-        this.points = generatePoints();
+    initPointList(numPoints) {
+        this.points = generatePoints(numPoints);
         this.initHull();
         
         for (let i = 4; i < this.points.length; i++) {
@@ -224,7 +224,7 @@ function arePointsEqual(p1, p2) {
     return (Math.abs(p1.x - p2.x) < epsilon) && (Math.abs(p1.y - p2.y) < epsilon) && (Math.abs(p1.z - p2.z) < epsilon);
 }
 
-function generatePoints() {
+function generatePoints(numPoints) {
     let pointList = [];
 
     pointList.push({
@@ -249,7 +249,7 @@ function generatePoints() {
     });
 
     let scale = 2.0;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < numPoints-4; i++) {
         pointList.push({
             x: scale * (Math.random() * 2 - 1),
             y: scale * (Math.random() * 2 - 1),

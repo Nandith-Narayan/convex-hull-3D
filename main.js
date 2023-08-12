@@ -23,7 +23,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 
 // Compute convex hull
 let hull = new ConvexHull();
-hull.initPointList();
+hull.initPointList(20);
 let positions = hull.getPointsFromFaces();
 let uniquePoints = hull.getUniquePoints();
 
@@ -224,7 +224,12 @@ document.getElementById("step-button").addEventListener('click', () => {
     doNextHullStep();
 });
 document.getElementById("rand-button").addEventListener('click', () => {
-    hull.initPointList();
+    hull.initPointList(20);
+    pointsCaptured = hull.points.length;
+    recreateScene();
+});
+document.getElementById("point-range").addEventListener('input', () => {
+    hull.initPointList(parseInt(document.getElementById("point-range").value));
     pointsCaptured = hull.points.length;
     recreateScene();
 });
